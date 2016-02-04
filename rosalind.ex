@@ -9,33 +9,33 @@ defmodule Rosalind do
   end
   
   def revc(dna) do
-  DNA.reverse_complement(dna)
+    DNA.reverse_complement(dna)
   end
 end
 
 defmodule DNA do
   def counting_acgt(dna) do
-  counting_chars(dna, ["A","C","G","T"])
+    counting_chars(dna, ["A","C","G","T"])
   end
   
   def transcribe_dna_in_rna(dna) do
-  String.replace(dna, "T", "U")
+    String.replace(dna, "T", "U")
   end
   
   def reverse_complement(dna) do
     complements = %{"A" => "T", "T" => "A", "C" => "G", "G" => "C"}
-  complement = for n <- String.codepoints(dna), into: "", do: complements[n]
-  String.reverse(complement)
+    complement = for n <- String.codepoints(dna), into: "", do: complements[n]
+    String.reverse(complement)
   end
   
   defp counting_chars(string, chars) do  
-  result = for char <- chars, into: %{}, do: {char, 0}  
-  Enum.reduce(String.codepoints(string), result, fn(letter, acc) ->
-    cond do
-    Map.has_key?(acc, letter) -> Map.update(acc, letter, 1, &(&1 + 1))
-    true -> acc
-    end
-  end)
+    result = for char <- chars, into: %{}, do: {char, 0}  
+    Enum.reduce(String.codepoints(string), result, fn(letter, acc) ->
+      cond do
+        Map.has_key?(acc, letter) -> Map.update(acc, letter, 1, &(&1 + 1))
+        true -> acc
+      end
+    end)
   end
 
 end
