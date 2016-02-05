@@ -11,6 +11,11 @@ defmodule Rosalind do
   def revc(dna) do
     DNA.reverse_complement(dna)
   end
+  
+  def iprb(args) do
+    [k, m, n] = for i <- String.split(args), do: String.to_integer(i)
+	Probability.mendels_first_law(k, m, n) |> Float.to_string([compact: true])
+  end
 end
 
 defmodule DNA do
@@ -37,15 +42,27 @@ defmodule DNA do
       end
     end)
   end
-
 end
+
+
+defmodule Probability do
+  def mendels_first_law(k, m, n) do
+    total = k + m + n
+	kp = k/total
+	mp = ((m/total) * (k/(total-1))) + ((m/total) * ((m-1)/(total-1)) * 0.75) + ((m/total) * (n/(total-1)) * 0.5)
+	np = ((n/total) * (k/(total-1))) + ((n/total) * (m/(total-1)) * 0.5)
+	kp + mp + np
+  end
+end
+
+
 
 
 {:ok, file} = File.open "result.txt", [:write]
 
-case File.read("rosalind_revc.txt") do
+case File.read("rosalind_iprb.txt") do
 #case File.read("test.txt") do
-  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.revc)
+  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.iprb)
   {:error, reason} -> IO.puts "Error when open the file: #{reason}"
 end
 
