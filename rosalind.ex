@@ -14,7 +14,7 @@ defmodule Rosalind do
 
   def iprb(args) do
     [k, m, n] = for i <- String.split(args), do: String.to_integer(i)
-	Probability.mendels_first_law(k, m, n) |> Float.to_string([compact: true])
+    Probability.mendels_first_law(k, m, n) |> Float.to_string([compact: true])
   end
 
   def fib(args) do
@@ -22,6 +22,7 @@ defmodule Rosalind do
     DynamicProgramming.rabbits_recurrence_relations(n, k) |> Integer.to_string
   end
 end
+
 
 defmodule DNA do
   def counting_acgt(dna) do
@@ -36,6 +37,16 @@ defmodule DNA do
     complements = %{"A" => "T", "T" => "A", "C" => "G", "G" => "C"}
     complement = for n <- String.codepoints(dna), into: "", do: complements[n]
     String.reverse(complement)
+  end
+  
+  def highest_gc_content(dnas) do
+  end
+  
+  def gc_content(dna) do
+    counting_chars(dna, ["G","C"])
+    |> Map.values
+    |> Enum.reduce(0, &(&1 + &2))
+    |> (fn(gc) -> (gc * 100)/ String.length(dna) end).()
   end
 
   defp counting_chars(string, chars) do
@@ -53,10 +64,10 @@ end
 defmodule Probability do
   def mendels_first_law(k, m, n) do
     total = k + m + n
-	kp = k/total
-	mp = ((m/total) * (k/(total-1))) + ((m/total) * ((m-1)/(total-1)) * 0.75) + ((m/total) * (n/(total-1)) * 0.5)
-	np = ((n/total) * (k/(total-1))) + ((n/total) * (m/(total-1)) * 0.5)
-	kp + mp + np
+    kp = k/total
+    mp = ((m/total) * (k/(total-1))) + ((m/total) * ((m-1)/(total-1)) * 0.75) + ((m/total) * (n/(total-1)) * 0.5)
+    np = ((n/total) * (k/(total-1))) + ((n/total) * (m/(total-1)) * 0.5)
+    kp + mp + np
   end
 end
 
@@ -73,12 +84,32 @@ defmodule DynamicProgramming do
 end
 
 
-{:ok, file} = File.open "result.txt", [:write]
+defmodule FASTA do
+  def group(content) do
+    dnas = %{}
+    content = String.split(content, ">", trim: true)
 
-case File.read("rosalind_fib.txt") do
-#case File.read("test.txt") do
-  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.fib)
+    Enum.reduce(content, dnas, fn(text, acc) ->
+      [label | dna] = String.split(text, ["\r\n","\n"])
+      dna = Enum.join(dna, "")
+      Map.put(acc, label, dna)
+    end)
+  end
+end
+
+
+case File.read("test.txt") do
+  {:ok, body}      -> IO.puts inspect (body |> String.strip |> FASTA.group)
   {:error, reason} -> IO.puts "Error when open the file: #{reason}"
 end
 
-File.close file
+
+#{:ok, file} = File.open "result.txt", [:write]
+
+#case File.read("rosalind_fib.txt") do
+##case File.read("test.txt") do
+#  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.fib)
+#  {:error, reason} -> IO.puts "Error when open the file: #{reason}"
+#end
+
+#File.close file
