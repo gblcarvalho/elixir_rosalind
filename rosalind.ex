@@ -21,6 +21,14 @@ defmodule Rosalind do
     [n, k] = for i <- String.split(args), do: String.to_integer(i)
     DynamicProgramming.rabbits_recurrence_relations(n, k) |> Integer.to_string
   end
+  
+  def gc(args) do
+    {max_label, max_gc} = args
+                          |> FASTA.group
+                          |> DNA.highest_gc_content
+    
+    "#{max_label}\n#{Float.to_string(max_gc, [compact: true])}"
+  end
 end
 
 
@@ -40,6 +48,8 @@ defmodule DNA do
   end
   
   def highest_gc_content(dnas) do
+    (for {label, dna} <- dnas, do: {label, gc_content(dna)})
+    |> Enum.max_by(fn(gc) -> elem(gc, 1) end)
   end
   
   def gc_content(dna) do
@@ -86,30 +96,23 @@ end
 
 defmodule FASTA do
   def group(content) do
-    dnas = %{}
     content = String.split(content, ">", trim: true)
 
-    Enum.reduce(content, dnas, fn(text, acc) ->
+    Enum.reduce(content, [], fn(text, acc) ->
       [label | dna] = String.split(text, ["\r\n","\n"])
       dna = Enum.join(dna, "")
-      Map.put(acc, label, dna)
+      acc ++ [{label, dna}]
     end)
   end
 end
 
 
-case File.read("test.txt") do
-  {:ok, body}      -> IO.puts inspect (body |> String.strip |> FASTA.group)
+{:ok, file} = File.open "result.txt", [:write]
+
+case File.read("rosalind_gc.txt") do
+#case File.read("test.txt") do
+  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.gc)
   {:error, reason} -> IO.puts "Error when open the file: #{reason}"
 end
 
-
-#{:ok, file} = File.open "result.txt", [:write]
-
-#case File.read("rosalind_fib.txt") do
-##case File.read("test.txt") do
-#  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.fib)
-#  {:error, reason} -> IO.puts "Error when open the file: #{reason}"
-#end
-
-#File.close file
+File.close file
