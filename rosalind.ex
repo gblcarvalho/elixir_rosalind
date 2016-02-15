@@ -33,6 +33,10 @@ defmodule Rosalind do
   def prot(rna) do
     DNA.encoding_rna_into_aminoacid(rna)
   end
+  
+  def subs(args) do
+	IO.puts inspect DNA.finding_locations_motif("GATATATGCATATACTT", "ATAT")
+  end
 end
 
 
@@ -82,6 +86,14 @@ defmodule DNA do
                         "UGG" => "W", "CGG" => "R", "AGG" => "R", "GGG" => "G"}
 
     do_encoding_rna_into_aminoacid(rna, rna_codon_table, "")
+  end
+  
+  def finding_locations_motif(dna, motif) do
+    Regex.scan(~r{(?=#{motif})}, dna, return: :index, capture: :first)
+	|> Enum.map(fn (x) -> 
+	             [{index, _} | _tail] = x
+		         index + 1
+		        end)
   end
 
   defp do_encoding_rna_into_aminoacid("", _table, protein), do: protein
@@ -147,9 +159,9 @@ end
 
 {:ok, file} = File.open "result.txt", [:write]
 
-case File.read("rosalind_prot.txt") do
-#case File.read("test.txt") do
-  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.prot)
+#case File.read("rosalind_prot.txt") do
+case File.read("test.txt") do
+  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.subs)
   {:error, reason} -> IO.puts "Error when open the file: #{reason}"
 end
 
