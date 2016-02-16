@@ -23,9 +23,10 @@ defmodule Rosalind do
   end
 
   def gc(args) do
-    {max_label, max_gc} = args
-                          |> FASTA.group
-                          |> DNA.highest_gc_content
+    {max_label, max_gc} = 
+	  args
+      |> FASTA.group
+      |> DNA.highest_gc_content
 
     "#{max_label}\n#{Float.to_string(max_gc, [compact: true])}"
   end
@@ -35,7 +36,10 @@ defmodule Rosalind do
   end
   
   def subs(args) do
-	IO.puts inspect DNA.finding_locations_motif("GATATATGCATATACTT", "ATAT")
+    [dna, motif] = String.split(args, ["\r\n","\n"])
+
+    (for i <- DNA.finding_locations_motif(dna, motif), into: "", do: "#{i} ")
+    |> String.strip
   end
 end
 
@@ -68,32 +72,33 @@ defmodule DNA do
   end
 
   def encoding_rna_into_aminoacid(rna) do
-    rna_codon_table = %{"UUU" => "F", "CUU" => "L", "AUU" => "I", "GUU" => "V",
-                        "UUC" => "F", "CUC" => "L", "AUC" => "I", "GUC" => "V",
-                        "UUA" => "L", "CUA" => "L", "AUA" => "I", "GUA" => "V",
-                        "UUG" => "L", "CUG" => "L", "AUG" => "M", "GUG" => "V",
-                        "UCU" => "S", "CCU" => "P", "ACU" => "T", "GCU" => "A",
-                        "UCC" => "S", "CCC" => "P", "ACC" => "T", "GCC" => "A",
-                        "UCA" => "S", "CCA" => "P", "ACA" => "T", "GCA" => "A",
-                        "UCG" => "S", "CCG" => "P", "ACG" => "T", "GCG" => "A",
-                        "UAU" => "Y", "CAU" => "H", "AAU" => "N", "GAU" => "D",
-                        "UAC" => "Y", "CAC" => "H", "AAC" => "N", "GAC" => "D",
-                        "UAA" => "Stop", "CAA" => "Q", "AAA" => "K", "GAA" => "E",
-                        "UAG" => "Stop", "CAG" => "Q", "AAG" => "K", "GAG" => "E",
-                        "UGU" => "C", "CGU" => "R", "AGU" => "S", "GGU" => "G",
-                        "UGC" => "C", "CGC" => "R", "AGC" => "S", "GGC" => "G",
-                        "UGA" => "Stop", "CGA" => "R", "AGA" => "R", "GGA" => "G",
-                        "UGG" => "W", "CGG" => "R", "AGG" => "R", "GGG" => "G"}
+    rna_codon_table = 
+	  %{"UUU" => "F", "CUU" => "L", "AUU" => "I", "GUU" => "V",
+        "UUC" => "F", "CUC" => "L", "AUC" => "I", "GUC" => "V",
+        "UUA" => "L", "CUA" => "L", "AUA" => "I", "GUA" => "V",
+        "UUG" => "L", "CUG" => "L", "AUG" => "M", "GUG" => "V",
+        "UCU" => "S", "CCU" => "P", "ACU" => "T", "GCU" => "A",
+        "UCC" => "S", "CCC" => "P", "ACC" => "T", "GCC" => "A",
+        "UCA" => "S", "CCA" => "P", "ACA" => "T", "GCA" => "A",
+        "UCG" => "S", "CCG" => "P", "ACG" => "T", "GCG" => "A",
+        "UAU" => "Y", "CAU" => "H", "AAU" => "N", "GAU" => "D",
+        "UAC" => "Y", "CAC" => "H", "AAC" => "N", "GAC" => "D",
+        "UAA" => "Stop", "CAA" => "Q", "AAA" => "K", "GAA" => "E",
+        "UAG" => "Stop", "CAG" => "Q", "AAG" => "K", "GAG" => "E",
+        "UGU" => "C", "CGU" => "R", "AGU" => "S", "GGU" => "G",
+        "UGC" => "C", "CGC" => "R", "AGC" => "S", "GGC" => "G",
+        "UGA" => "Stop", "CGA" => "R", "AGA" => "R", "GGA" => "G",
+        "UGG" => "W", "CGG" => "R", "AGG" => "R", "GGG" => "G"}
 
     do_encoding_rna_into_aminoacid(rna, rna_codon_table, "")
   end
   
   def finding_locations_motif(dna, motif) do
     Regex.scan(~r{(?=#{motif})}, dna, return: :index, capture: :first)
-	|> Enum.map(fn (x) -> 
-	             [{index, _} | _tail] = x
-		         index + 1
-		        end)
+    |> Enum.map(fn (x) -> 
+         [{index, _} | _tail] = x
+         index + 1
+       end)
   end
 
   defp do_encoding_rna_into_aminoacid("", _table, protein), do: protein
@@ -159,8 +164,8 @@ end
 
 {:ok, file} = File.open "result.txt", [:write]
 
-#case File.read("rosalind_prot.txt") do
-case File.read("test.txt") do
+case File.read("rosalind_subs.txt") do
+#case File.read("test.txt") do
   {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.subs)
   {:error, reason} -> IO.puts "Error when open the file: #{reason}"
 end
