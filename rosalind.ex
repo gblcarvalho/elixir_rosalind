@@ -53,6 +53,22 @@ defmodule Rosalind do
 	|> DNA.protein_mass
 	|> Float.to_string([decimals: 5, compact: true])
   end
+  
+  def perm(number) do
+    final = String.to_integer(number)
+	
+	permutations = 
+	  (for i <- 1..final, do: i)
+	  |> Combinatorics.permutation
+	
+	number_permutations = 
+	  permutations
+	  |> length
+	  |> Integer.to_string
+	
+	permutations = (for p <- permutations, do: Enum.join(p, " "))
+	number_permutations <> "\n" <> Enum.join(permutations, "\n")
+  end
 end
 
 
@@ -178,6 +194,14 @@ defmodule DNA do
 end
 
 
+defmodule Combinatorics do
+  def permutation([]), do: [[]]  
+  def permutation(list) when is_list(list) do
+    for head <- list, tail <- permutation(list -- [head]), do: [head | tail]
+  end
+end
+
+
 defmodule Probability do
   def mendels_first_law(k, m, n) do
     total = k + m + n
@@ -214,12 +238,11 @@ defmodule FASTA do
 end
 
 
-
 {:ok, file} = File.open "result.txt", [:write]
 
-case File.read("rosalind_prtm.txt") do
+case File.read("rosalind_perm.txt") do
 #case File.read("test.txt") do
-  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.prtm)
+  {:ok, body}      -> IO.binwrite file, (body |> String.strip |> Rosalind.perm)
   {:error, reason} -> IO.puts "Error when open the file: #{reason}"
 end
 
