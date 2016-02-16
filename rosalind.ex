@@ -24,7 +24,7 @@ defmodule Rosalind do
 
   def gc(args) do
     {max_label, max_gc} = 
-	  args
+      args
       |> FASTA.group
       |> DNA.highest_gc_content
 
@@ -45,29 +45,29 @@ defmodule Rosalind do
   def hamm(args) do
     [dna_one, dna_two] = String.split(args, ["\r\n","\n"])
     DNA.hamming_distance(dna_one, dna_two)
-	|> Integer.to_string
+    |> Integer.to_string
   end
   
   def prtm(protein) do
     protein
-	|> DNA.protein_mass
-	|> Float.to_string([decimals: 5, compact: true])
+    |> DNA.protein_mass
+    |> Float.to_string([decimals: 5, compact: true])
   end
   
   def perm(number) do
     final = String.to_integer(number)
-	
-	permutations = 
-	  (for i <- 1..final, do: i)
-	  |> Combinatorics.permutation
-	
-	number_permutations = 
-	  permutations
-	  |> length
-	  |> Integer.to_string
-	
-	permutations = (for p <- permutations, do: Enum.join(p, " "))
-	number_permutations <> "\n" <> Enum.join(permutations, "\n")
+
+    permutations = 
+      (for i <- 1..final, do: i)
+      |> Combinatorics.permutation
+
+    number_permutations = 
+      permutations
+      |> length
+      |> Integer.to_string
+
+    permutations = (for p <- permutations, do: Enum.join(p, " "))
+    number_permutations <> "\n" <> Enum.join(permutations, "\n")
   end
 end
 
@@ -101,7 +101,7 @@ defmodule DNA do
 
   def encoding_rna_into_aminoacid(rna) do
     rna_codon_table = 
-	  %{"UUU" => "F", "CUU" => "L", "AUU" => "I", "GUU" => "V",
+      %{"UUU" => "F", "CUU" => "L", "AUU" => "I", "GUU" => "V",
         "UUC" => "F", "CUC" => "L", "AUC" => "I", "GUC" => "V",
         "UUA" => "L", "CUA" => "L", "AUA" => "I", "GUA" => "V",
         "UUG" => "L", "CUG" => "L", "AUG" => "M", "GUG" => "V",
@@ -132,42 +132,42 @@ defmodule DNA do
   def hamming_distance(dna_one, dna_two) do
     Enum.zip(String.codepoints(dna_one), String.codepoints(dna_two))
     |> Enum.reduce(0, fn(x, acc) ->
-	     {n_one, n_two} = x
-	     cond do
-		   n_one == n_two -> acc
-		   true -> acc + 1
-		 end
-	   end)
+         {n_one, n_two} = x
+         cond do
+           n_one == n_two -> acc
+           true -> acc + 1
+         end
+       end)
   end
   
   def protein_mass(protein) do
     monoisotopic_mass =
       %{"A" => 71.03711,
-		"C" => 103.00919,
-		"D" => 115.02694,
-		"E" => 129.04259,
-		"F" => 147.06841,
-		"G" => 57.02146,
-		"H" => 137.05891,
-		"I" => 113.08406,
-		"K" => 128.09496,
-		"L" => 113.08406,
-		"M" => 131.04049,
-		"N" => 114.04293,
-		"P" => 97.05276,
-		"Q" => 128.05858,
-		"R" => 156.10111,
-		"S" => 87.03203,
-		"T" => 101.04768,
-		"V" => 99.06841,
-		"W" => 186.07931,
-		"Y" => 163.06333}
+        "C" => 103.00919,
+        "D" => 115.02694,
+        "E" => 129.04259,
+        "F" => 147.06841,
+        "G" => 57.02146,
+        "H" => 137.05891,
+        "I" => 113.08406,
+        "K" => 128.09496,
+        "L" => 113.08406,
+        "M" => 131.04049,
+        "N" => 114.04293,
+        "P" => 97.05276,
+        "Q" => 128.05858,
+        "R" => 156.10111,
+        "S" => 87.03203,
+        "T" => 101.04768,
+        "V" => 99.06841,
+        "W" => 186.07931,
+        "Y" => 163.06333}
 
     protein
-	|> String.codepoints
-	|> Enum.reduce(0, fn(x, acc) ->
-	     acc + monoisotopic_mass[x]
-	   end)
+    |> String.codepoints
+    |> Enum.reduce(0, fn(x, acc) ->
+         acc + monoisotopic_mass[x]
+       end)
   end
 
   defp do_encoding_rna_into_aminoacid("", _table, protein), do: protein
